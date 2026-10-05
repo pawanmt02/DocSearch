@@ -13,7 +13,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
     const cleanedEmail = email.toLowerCase().trim();
 
     if (password.length < 6) {
@@ -62,11 +61,14 @@ export async function POST(request: Request) {
       console.warn("Prisma DB create failed on Vercel, proceeding with Vercel JWT session creation:", dbErr);
     }
 
-    // Generate JWT and set HTTP-only cookie
+    // Generate JWT token
     const token = await signToken(payload);
+
+    // Also try setting via server helper
     setTokenCookie(token);
 
-    return NextResponse.json(
+    // Explicitly set cookie on NextResponse header for Vercel serverless runtime safety
+    const response = NextResponse.json(
       {
         success: true,
         message: "Student account created successfully!",
@@ -74,6 +76,16 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
+
+    response.cookies.set("docsearch_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Student Registration API Error:", error);
     return NextResponse.json(

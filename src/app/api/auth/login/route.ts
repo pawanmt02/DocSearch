@@ -13,7 +13,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
     const cleanedEmail = email.toLowerCase().trim();
     let user: { id: string; email: string; name: string; role: "ADMIN" | "STUDENT"; password?: string } | null = null;
 
@@ -61,10 +60,20 @@ export async function POST(request: Request) {
     const token = await signToken(payload);
     setTokenCookie(token);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: payload,
     });
+
+    response.cookies.set("docsearch_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Login API Error:", error);
     return NextResponse.json(

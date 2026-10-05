@@ -8,7 +8,6 @@ export interface JWTPayload {
   name: string;
   role: "ADMIN" | "STUDENT";
 }
-
 export async function signToken(payload: JWTPayload): Promise<string> {
   return await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
@@ -27,24 +26,36 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
 }
 
 export async function getSession(): Promise<JWTPayload | null> {
-  const cookieStore = cookies();
-  const token = cookieStore.get("docsearch_token")?.value;
-  if (!token) return null;
-  return await verifyToken(token);
+  try {
+    const cookieStore = cookies();
+    const token = cookieStore.get("docsearch_token")?.value;
+    if (!token) return null;
+    return await verifyToken(token);
+  } catch (err) {
+    return null;
+  }
 }
 
 export function setTokenCookie(token: string) {
-  const cookieStore = cookies();
-  cookieStore.set("docsearch_token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24, // 1 day
-    path: "/",
-  });
+  try {
+    const cookieStore = cookies();
+    cookieStore.set("docsearch_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
+      path: "/",
+    });
+  } catch (err) {
+    console.warn("setTokenCookie skipped in current context:", err);
+  }
 }
 
 export function removeTokenCookie() {
-  const cookieStore = cookies();
-  cookieStore.delete("docsearch_token");
+  try {
+    const cookieStore = cookies();
+    cookieStore.delete("docsearch_token");
+  } catch (err) {
+    console.warn("removeTokenCookie skipped in current context:", err);
+  }
 }
