@@ -1,0 +1,62 @@
+// Prisma Schema for DocSearch / DocSphere
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("STUDENT") // ADMIN or STUDENT
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  notes     Note[]
+  comments  Comment[]
+}
+
+model StudyGroup {
+  id          String   @id @default(uuid())
+  name        String
+  courseCode  String
+  description String?
+  createdAt   DateTime @default(now())
+  notes       Note[]
+}
+
+model Note {
+  id           String      @id @default(uuid())
+  title        String
+  subject      String
+  fileId       String
+  originalUrl  String
+  description  String?
+  tag          String      @default("General")
+  courseCode   String      @default("CS-101")
+  semester     String      @default("Fall 2026")
+  upvotes      Int         @default(0)
+  ocrText      String?     // Extracted OCR text for scanned lecture slides
+  uploaderId   String
+  uploader     User        @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  studyGroupId String?
+  studyGroup   StudyGroup? @relation(fields: [studyGroupId], references: [id])
+  comments     Comment[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  noteId    String
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text      String
+  createdAt DateTime @default(now())
+}

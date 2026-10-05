@@ -1,0 +1,60 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const comments = await prisma.comment.findMany({
+      where: { noteId: id },
+      include: {
+        user: { select: { name: true, role: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ comments });
+  } catch (error) {
+    console.error("GET Comments error:", error);
+    return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
+    const { id } = params;
+    const { text } = await request.json();
+
+    if (!text || !text.trim()) {
+      return NextResponse.json({ error: "Comment text cannot be empty" }, { status: 400 });
+    }
+
+    const newComment = await prisma.comment.create({
+      data: {
+        noteId: id,
+        userId: session.id,
+        text: text.trim(),
+      },
+      include: {
+        user: { select: { name: true, role: true } },
+      },
+    });
+
+    return NextResponse.json({ success: true, comment: newComment }, { status: 201 });
+  } catch (error) {
+    console.error("POST Comment error:", error);
+    return NextResponse.json({ error: "Failed to post comment" }, { status: 500 });
+  }
+}
