@@ -23,7 +23,7 @@ export const DEMO_USERS = [
   {
     id: "admin-uuid-001",
     email: "admin@docsearch.com",
-    password: "admin123",
+    password: "SecureAdmin2026!",
     name: "System Administrator",
     role: "ADMIN" as const,
   },

@@ -13,8 +13,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
-  const [selectedRole, setSelectedRole] = useState<"ADMIN" | "STUDENT">("ADMIN");
-
   // Registration State
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -24,14 +22,6 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false); // Hardware-accelerated compression animation
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-
-  const handleSelectDemoUser = (role: "ADMIN" | "STUDENT") => {
-    setAuthMode("SIGN_IN");
-    setSelectedRole(role);
-    // Credentials must be entered manually for security
-    setEmail("");
-    setPassword("");
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,34 +200,7 @@ export default function LoginPage() {
                 onSubmit={handleSignIn}
                 className="space-y-5"
               >
-                {/* Role Switcher Pills */}
-                <div className="flex items-center justify-between gap-2 pb-2">
-                  <span className="text-[11px] font-bold uppercase text-slate-500 tracking-wider">Demo Account:</span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectDemoUser("ADMIN")}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                        selectedRole === "ADMIN"
-                          ? "bg-[#e0e5ec] text-emerald-700 shadow-[3px_3px_6px_#babecc,-3px_-3px_6px_#ffffff]"
-                          : "text-slate-400 hover:text-slate-700"
-                      }`}
-                    >
-                      Admin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectDemoUser("STUDENT")}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                        selectedRole === "STUDENT"
-                          ? "bg-[#e0e5ec] text-indigo-700 shadow-[3px_3px_6px_#babecc,-3px_-3px_6px_#ffffff]"
-                          : "text-slate-400 hover:text-slate-700"
-                      }`}
-                    >
-                      Student
-                    </button>
-                  </div>
-                </div>
+                {/* Form Inputs Start */}
 
                 {/* Email with Inverted Inset Shadow (PDR 4.1) */}
                 <div>
@@ -251,7 +214,6 @@ export default function LoginPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@docsearch.com"
                       className="w-full pl-11 pr-4 py-3.5 bg-[#e0e5ec] text-slate-800 text-sm rounded-xl font-medium shadow-[inset_4px_4px_8px_#babecc,inset_-4px_-4px_8px_#ffffff] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-slate-400"
                     />
                   </div>
@@ -269,7 +231,6 @@ export default function LoginPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
                       className="w-full pl-11 pr-4 py-3.5 bg-[#e0e5ec] text-slate-800 text-sm rounded-xl font-medium shadow-[inset_4px_4px_8px_#babecc,inset_-4px_-4px_8px_#ffffff] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-slate-400"
                     />
                   </div>
@@ -329,7 +290,7 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className="w-full py-4 px-6 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow-[6px_6px_12px_#babecc,-6px_-6px_12px_#ffffff] hover:bg-indigo-700 active:shadow-[inset_3px_3px_6px_#3730a3] transition-all flex items-center justify-center space-x-2 border border-indigo-500/30 disabled:opacity-75 cursor-pointer"
                 >
-                  <span>{isLoading ? "Authenticating Session..." : `Sign In as ${selectedRole}`}</span>
+                  <span>{isLoading ? "Authenticating Session..." : "Sign In"}</span>
                   {!isLoading && <ArrowRight className="w-4 h-4" />}
                 </motion.button>
               </motion.form>
