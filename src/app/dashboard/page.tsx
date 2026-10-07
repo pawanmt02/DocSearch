@@ -76,9 +76,28 @@ export default function StudentDashboard() {
     fetch(`/api/notes?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        setNotes(data.notes || []);
+        const customNotes = JSON.parse(localStorage.getItem("docsearch_custom_notes") || "[]");
+        
+        let filteredCustom = customNotes;
+        if (query) {
+          const q = query.toLowerCase();
+          filteredCustom = filteredCustom.filter((n: any) => 
+            n.title.toLowerCase().includes(q) || n.courseCode.toLowerCase().includes(q) || n.subject.toLowerCase().includes(q)
+          );
+        }
+        if (subj && subj !== "ALL") {
+          filteredCustom = filteredCustom.filter((n: any) => n.subject === subj);
+        }
+
+        const combinedNotes = [...filteredCustom, ...(data.notes || [])];
+        const uniqueNotes = Array.from(new Map(combinedNotes.map(item => [item.id, item])).values());
+        
+        setNotes(uniqueNotes);
+
         if (data.subjects && Array.isArray(data.subjects)) {
-          setDynamicSubjects(data.subjects);
+          const customSubjects = customNotes.map((n: any) => n.subject);
+          const allSubjects = Array.from(new Set([...data.subjects, ...customSubjects]));
+          setDynamicSubjects(allSubjects);
         }
         if (data.courseCodes && Array.isArray(data.courseCodes)) {
           setDynamicCourseCodes(data.courseCodes);

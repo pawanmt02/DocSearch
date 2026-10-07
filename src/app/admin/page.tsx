@@ -69,9 +69,32 @@ export default function AdminDashboard() {
     fetch(`/api/notes?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
-        setNotes(data.notes || []);
+        const customNotes = JSON.parse(localStorage.getItem("docsearch_custom_notes") || "[]");
+        
+        // Filter custom notes by search query and subject if needed
+        let filteredCustom = customNotes;
+        if (query) {
+          const q = query.toLowerCase();
+          filteredCustom = filteredCustom.filter((n: any) => 
+            n.title.toLowerCase().includes(q) || n.courseCode.toLowerCase().includes(q) || n.subject.toLowerCase().includes(q)
+          );
+        }
+        if (subj && subj !== "ALL") {
+          filteredCustom = filteredCustom.filter((n: any) => n.subject === subj);
+        }
+
+        const combinedNotes = [...filteredCustom, ...(data.notes || [])];
+        
+        // Deduplicate in case the backend also returns them during active memory
+        const uniqueNotes = Array.from(new Map(combinedNotes.map(item => [item.id, item])).values());
+        
+        setNotes(uniqueNotes);
+        
         if (data.subjects && Array.isArray(data.subjects)) {
-          setDynamicSubjects(data.subjects);
+          // Add subjects from custom notes
+          const customSubjects = customNotes.map((n: any) => n.subject);
+          const allSubjects = Array.from(new Set([...data.subjects, ...customSubjects]));
+          setDynamicSubjects(allSubjects);
         }
         setLoading(false);
       })
@@ -141,6 +164,12 @@ export default function AdminDashboard() {
       }
 
       setFormSuccess(`Successfully ingested "${title}" with Course Code ${courseCode}!`);
+      
+      // Save locally to bypass Vercel stateless memory
+      const customNotes = JSON.parse(localStorage.getItem("docsearch_custom_notes") || "[]");
+      customNotes.unshift(data.note);
+      localStorage.setItem("docsearch_custom_notes", JSON.stringify(customNotes));
+
       fetchNotes();
 
       setTimeout(() => {
