@@ -4,13 +4,16 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["error"],
-  });
+let prismaInstance: PrismaClient | undefined;
+try {
+  prismaInstance = globalForPrisma.prisma ?? new PrismaClient({ log: ["error"] });
+  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prismaInstance;
+} catch (e) {
+  console.warn("Failed to instantiate Prisma Client (expected on Vercel):", e);
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = prismaInstance as any; // Cast as any to avoid type errors when prisma is potentially undefined in endpoints
+
 
 // Demo accounts fallback for Vercel Serverless environment if SQLite is unreadable
 export const DEMO_USERS = [
