@@ -196,9 +196,10 @@ export default function CommandIsland({
                       body: JSON.stringify({ newPassword }),
                     });
                     if (res.ok) {
-                      alert("Password updated successfully!");
+                      alert("Password updated successfully! Please log in again with your new password.");
                       setIsSettingsOpen(false);
                       setNewPassword("");
+                      handleLogout();
                     } else {
                       const data = await res.json();
                       alert(data.error || "Failed to update password");

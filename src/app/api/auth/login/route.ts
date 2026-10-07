@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma, DEMO_USERS } from "@/lib/prisma";
 import { signToken, setTokenCookie } from "@/lib/auth";
@@ -58,11 +59,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const pwdHash = crypto.createHash("sha256").update(user.password || "").digest("hex");
+
     const payload = {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
+      pwdHash,
     };
 
     let token = "";

@@ -7,6 +7,7 @@ export interface JWTPayload {
   email: string;
   name: string;
   role: "ADMIN" | "STUDENT";
+  pwdHash?: string;
 }
 export async function signToken(payload: JWTPayload): Promise<string> {
   return await new SignJWT({ ...payload })

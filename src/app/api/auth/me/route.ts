@@ -1,5 +1,6 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, removeTokenCookie } from "@/lib/auth";
 import { prisma, DEMO_USERS } from "@/lib/prisma";
 
 export async function GET() {
@@ -7,6 +8,40 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
   }
+
+  let currentPassword = "";
+  let userFound = false;
+
+  // Try DB
+  try {
+    if (prisma && prisma.user) {
+      const dbUser = await prisma.user.findUnique({ where: { id: session.id } });
+      if (dbUser) {
+        currentPassword = dbUser.password;
+        userFound = true;
+      }
+    }
+  } catch (err) {}
+
+  // Fallback to DEMO_USERS
+  if (!userFound) {
+    const demoUser = DEMO_USERS.find((u) => u.id === session.id);
+    if (demoUser) {
+      currentPassword = demoUser.password;
+      userFound = true;
+    }
+  }
+
+  if (userFound && session.pwdHash) {
+    const currentHash = crypto.createHash("sha256").update(currentPassword || "").digest("hex");
+    if (currentHash !== session.pwdHash) {
+      // Password was changed! Force logout.
+      const response = NextResponse.json({ authenticated: false, user: null, reason: "password_changed" }, { status: 401 });
+      response.cookies.delete("docsearch_token");
+      return response;
+    }
+  }
+
   return NextResponse.json({ authenticated: true, user: session });
 }
 
