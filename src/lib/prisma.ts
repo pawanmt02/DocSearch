@@ -12,7 +12,10 @@ try {
   console.warn("Failed to instantiate Prisma Client (expected on Vercel):", e);
 }
 
-export const prisma = prismaInstance as any; // Cast as any to avoid type errors when prisma is potentially undefined in endpoints
+// We provide a dummy proxy or cast it as PrismaClient to satisfy TypeScript.
+// If it fails at runtime, we catch it in our route handlers.
+export const prisma = prismaInstance as PrismaClient;
+
 
 
 // Demo accounts fallback for Vercel Serverless environment if SQLite is unreadable
