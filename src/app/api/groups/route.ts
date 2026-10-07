@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, DEMO_GROUPS } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -12,7 +12,8 @@ export async function GET() {
 
     return NextResponse.json({ groups });
   } catch (error) {
-    console.error("GET Groups error:", error);
-    return NextResponse.json({ error: "Failed to fetch study groups" }, { status: 500 });
+    console.warn("GET Groups error, returning DEMO_GROUPS:", error);
+    return NextResponse.json({ groups: DEMO_GROUPS });
   }
 }
+

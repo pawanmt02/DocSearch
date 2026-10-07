@@ -96,3 +96,10 @@ export const DEMO_NOTES = [
     _count: { comments: 0 },
   },
 ];
+
+export const DEMO_GROUPS = [
+  { id: "group-1", name: "CS 301 Study Circle", courseCode: "CS-301", description: "Distributed Systems & Algorithms", _count: { notes: 3 } },
+  { id: "group-2", name: "PHYS 302 Quantum Circle", courseCode: "PHYS-302", description: "Quantum Computing & Decoherence", _count: { notes: 2 } },
+  { id: "group-3", name: "AI 401 Deep Learning Cohort", courseCode: "AI-401", description: "Transformers & Neural Networks", _count: { notes: 4 } },
+];
+

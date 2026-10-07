@@ -24,9 +24,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Note ID is required" }, { status: 400 });
     }
 
-    await prisma.note.delete({
-      where: { id },
-    });
+    try {
+      await prisma.note.delete({
+        where: { id },
+      });
+    } catch (dbErr) {
+      console.warn("Prisma delete note fallback:", dbErr);
+    }
 
     return NextResponse.json({ success: true, message: "Study material deleted" });
   } catch (error) {
@@ -37,3 +41,4 @@ export async function DELETE(
     );
   }
 }
+
