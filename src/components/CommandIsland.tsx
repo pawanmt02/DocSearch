@@ -31,6 +31,9 @@ export default function CommandIsland({
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Handle scroll to shrink/expand Command Island
   useEffect(() => {
@@ -133,22 +136,104 @@ export default function CommandIsland({
               </button>
             )}
 
-            <div className="flex items-center space-x-1 bg-slate-950/80 border border-white/10 rounded-full px-2.5 py-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-slate-300 capitalize truncate max-w-[70px]">
+            <div className="flex items-center space-x-1 bg-slate-950/80 border border-white/10 rounded-full px-1.5 sm:px-2.5 py-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse hidden sm:block" />
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="text-[10px] sm:text-[11px] font-bold text-slate-300 hover:text-white capitalize truncate max-w-[50px] sm:max-w-[70px] cursor-pointer"
+                title="Account Settings"
+              >
                 {user?.name?.split(" ")[0] || "Guest"}
-              </span>
+              </button>
               <button
                 onClick={handleLogout}
-                className="ml-1 p-1 text-slate-400 hover:text-red-400 transition-colors"
+                className="ml-0.5 sm:ml-1 p-1 text-slate-400 hover:text-red-400 transition-colors"
                 title="Sign Out"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
               </button>
             </div>
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Account Settings Modal */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSettingsOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative z-10 w-full max-w-sm bg-slate-900 border border-white/10 rounded-3xl p-6 shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-white flex items-center space-x-2">
+                  <User className="w-5 h-5 text-indigo-400" />
+                  <span>Account Settings</span>
+                </h3>
+                <button onClick={() => setIsSettingsOpen(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (newPassword.length < 6) return alert("Password must be at least 6 characters.");
+                  setIsChangingPassword(true);
+                  try {
+                    const res = await fetch("/api/auth/me", {
+                      method: "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ newPassword }),
+                    });
+                    if (res.ok) {
+                      alert("Password updated successfully!");
+                      setIsSettingsOpen(false);
+                      setNewPassword("");
+                    } else {
+                      const data = await res.json();
+                      alert(data.error || "Failed to update password");
+                    }
+                  } catch (err) {
+                    alert("Failed to update password");
+                  }
+                  setIsChangingPassword(false);
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">New Password</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword || !newPassword}
+                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold disabled:opacity-50 transition-colors"
+                >
+                  {isChangingPassword ? "Updating..." : "Update Password"}
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Full-Screen Ctrl+K Command Palette Search Modal (PDR Section 4.2) */}
       <AnimatePresence>

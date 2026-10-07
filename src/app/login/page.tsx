@@ -10,8 +10,8 @@ export default function LoginPage() {
   const [authMode, setAuthMode] = useState<"SIGN_IN" | "REGISTER">("SIGN_IN");
 
   // Sign In State
-  const [email, setEmail] = useState("admin@docsearch.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [selectedRole, setSelectedRole] = useState<"ADMIN" | "STUDENT">("ADMIN");
 
@@ -28,13 +28,9 @@ export default function LoginPage() {
   const handleSelectDemoUser = (role: "ADMIN" | "STUDENT") => {
     setAuthMode("SIGN_IN");
     setSelectedRole(role);
-    if (role === "ADMIN") {
-      setEmail("admin@docsearch.com");
-      setPassword("admin123");
-    } else {
-      setEmail("student@docsearch.com");
-      setPassword("student123");
-    }
+    // Credentials must be entered manually for security
+    setEmail("");
+    setPassword("");
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -164,13 +160,13 @@ export default function LoginPage() {
               setErrorMsg("");
               setSuccessMsg("");
             }}
-            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all relative z-10 ${
+            className={`flex-1 py-2.5 px-2 sm:px-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center space-x-1.5 sm:space-x-2 transition-all relative z-10 ${
               authMode === "SIGN_IN"
                 ? "text-indigo-600 shadow-[6px_6px_12px_#babecc,-6px_-6px_12px_#ffffff] bg-[#e0e5ec]"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >
-            <LogIn className="w-4 h-4" />
+            <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>Sign In</span>
           </button>
           <button
@@ -180,14 +176,14 @@ export default function LoginPage() {
               setErrorMsg("");
               setSuccessMsg("");
             }}
-            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all relative z-10 ${
+            className={`flex-1 py-2.5 px-2 sm:px-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center space-x-1.5 sm:space-x-2 transition-all relative z-10 ${
               authMode === "REGISTER"
                 ? "text-indigo-600 shadow-[6px_6px_12px_#babecc,-6px_-6px_12px_#ffffff] bg-[#e0e5ec]"
                 : "text-slate-500 hover:text-slate-800"
             }`}
           >
-            <UserPlus className="w-4 h-4 text-emerald-600" />
-            <span>Create Student Account</span>
+            <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+            <span><span className="hidden sm:inline">Create Student </span>Account</span>
           </button>
         </div>
 
