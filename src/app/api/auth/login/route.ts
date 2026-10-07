@@ -4,8 +4,14 @@ import { signToken, setTokenCookie } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { email, password } = body;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON request body" }, { status: 400 });
+    }
+
+    const { email, password } = body || {};
 
     if (!email || !password) {
       return NextResponse.json(
@@ -13,22 +19,24 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const cleanedEmail = email.toLowerCase().trim();
+    const cleanedEmail = String(email).toLowerCase().trim();
     let user: { id: string; email: string; name: string; role: "ADMIN" | "STUDENT"; password?: string } | null = null;
 
-    // 1. Try fetching from Database
+    // 1. Try fetching from Database (safely handled if DB is uninitialized on Vercel)
     try {
-      const dbUser = await prisma.user.findUnique({
-        where: { email: cleanedEmail },
-      });
-      if (dbUser) {
-        user = {
-          id: dbUser.id,
-          email: dbUser.email,
-          name: dbUser.name,
-          role: dbUser.role as "ADMIN" | "STUDENT",
-          password: dbUser.password,
-        };
+      if (prisma && prisma.user) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: cleanedEmail },
+        });
+        if (dbUser) {
+          user = {
+            id: dbUser.id,
+            email: dbUser.email,
+            name: dbUser.name,
+            role: dbUser.role as "ADMIN" | "STUDENT",
+            password: dbUser.password,
+          };
+        }
       }
     } catch (dbErr) {
       console.warn("Prisma DB Query failed (Vercel Serverless environment), attempting demo fallback:", dbErr);
@@ -57,28 +65,42 @@ export async function POST(request: Request) {
       role: user.role,
     };
 
-    const token = await signToken(payload);
-    setTokenCookie(token);
+    let token = "";
+    try {
+      token = await signToken(payload);
+    } catch (tokenErr) {
+      console.warn("Token signing fallback:", tokenErr);
+    }
+
+    if (token) {
+      setTokenCookie(token);
+    }
 
     const response = NextResponse.json({
       success: true,
       user: payload,
     });
 
-    response.cookies.set("docsearch_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 1 day
-      path: "/",
-    });
+    if (token) {
+      response.cookies.set("docsearch_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24, // 1 day
+        path: "/",
+      });
+    }
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Login API Error:", error);
     return NextResponse.json(
-      { error: "Internal server error during authentication" },
+      { 
+        error: "Internal server error during authentication",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
 }
+
