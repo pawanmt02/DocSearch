@@ -201,6 +201,10 @@ export async function POST(request: Request) {
         uploader: { name: session.name || "Administrator", email: session.email },
         _count: { comments: 0 },
       };
+      
+      // Store in memory so it persists across refreshes (until Vercel cold starts)
+      DEMO_NOTES.unshift(mockNote);
+      
       return NextResponse.json({ success: true, note: mockNote }, { status: 201 });
     }
   } catch (error) {
