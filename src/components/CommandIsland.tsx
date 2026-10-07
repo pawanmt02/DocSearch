@@ -112,9 +112,9 @@ export default function CommandIsland({
           {/* Center Interactive Search Trigger Bar */}
           <button
             onClick={() => setIsPaletteOpen(true)}
-            className="flex-1 max-w-xs sm:max-w-md mx-3 px-3.5 py-1.5 rounded-full bg-slate-950/70 border border-white/10 text-xs text-slate-400 flex items-center justify-between hover:border-indigo-500/50 hover:text-slate-200 transition-all cursor-pointer"
+            className="flex-1 max-w-xs sm:max-w-md mx-1 sm:mx-3 px-2 sm:px-3.5 py-1.5 rounded-full bg-slate-950/70 border border-white/10 text-[10px] sm:text-xs text-slate-400 flex items-center justify-between hover:border-indigo-500/50 hover:text-slate-200 transition-all cursor-pointer"
           >
-            <div className="flex items-center space-x-2 truncate">
+            <div className="flex items-center space-x-1.5 sm:space-x-2 truncate">
               <Search className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
               <span className="truncate">{searchQuery || "Search materials, course codes..."}</span>
             </div>

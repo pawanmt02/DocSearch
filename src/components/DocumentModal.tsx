@@ -196,29 +196,33 @@ export default function DocumentModal({
             </div>
 
             {/* Controls Toolbar */}
-            <div className="flex items-center space-x-2 shrink-0">
+            <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
               {/* Tab Switcher: Document Viewer vs Q&A Discussions */}
-              <div className="flex items-center p-1 bg-slate-800 border border-white/10 rounded-xl">
+              <div className="flex items-center p-0.5 sm:p-1 bg-slate-800 border border-white/10 rounded-xl">
                 <button
                   onClick={() => setActiveTab("DOCUMENT")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center ${
                     activeTab === "DOCUMENT"
                       ? "bg-indigo-600 text-white shadow"
                       : "text-slate-400 hover:text-white"
                   }`}
+                  title="Document View"
                 >
-                  Document View
+                  <Eye className="w-3.5 h-3.5 sm:hidden" />
+                  <span className="hidden sm:inline">Document View</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("DISCUSSIONS")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all ${
+                  className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold flex items-center space-x-1 sm:space-x-1.5 transition-all ${
                     activeTab === "DISCUSSIONS"
                       ? "bg-indigo-600 text-white shadow"
                       : "text-slate-400 hover:text-white"
                   }`}
+                  title="Q&A"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>Q&A ({comments.length})</span>
+                  <span className="hidden sm:inline">Q&A ({comments.length})</span>
+                  <span className="sm:hidden">{comments.length}</span>
                 </button>
               </div>
 
@@ -395,13 +399,13 @@ export default function DocumentModal({
           )}
 
           {/* Footer Metadata Bar */}
-          <div className="flex items-center justify-between px-5 py-3 bg-slate-950 border-t border-white/10 text-xs text-slate-400 shrink-0 select-none">
-            <div className="flex items-center space-x-4 truncate">
+          <div className="flex flex-col sm:flex-row items-center justify-between px-3 sm:px-5 py-2 sm:py-3 bg-slate-950 border-t border-white/10 text-[10px] sm:text-xs text-slate-400 shrink-0 select-none gap-2 sm:gap-0">
+            <div className="flex items-center space-x-2 sm:space-x-4 truncate w-full sm:w-auto justify-center sm:justify-start">
               <span>Course: <code className="font-mono text-slate-300">{note.courseCode}</code></span>
-              <span className="hidden sm:inline">•</span>
+              <span>•</span>
               <span>Semester: <code className="font-mono text-emerald-400">{note.semester}</code></span>
             </div>
-            <div className="flex items-center space-x-2 shrink-0">
+            <div className="hidden sm:flex items-center space-x-2 shrink-0">
               <span className="text-slate-400">Click & Drag to Pan • Press</span>
               <kbd className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono border border-white/10">ESC</kbd>
               <span className="text-slate-400">to exit</span>

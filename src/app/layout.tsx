@@ -8,6 +8,13 @@ export const metadata: Metadata = {
     "Role-restricted web application engineered to centralize academic and technical study materials using Google Drive decentralized storage and zero-download floating viewer.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
