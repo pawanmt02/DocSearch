@@ -85,8 +85,8 @@ export default function StudentDashboard() {
             n.title.toLowerCase().includes(q) || n.courseCode.toLowerCase().includes(q) || n.subject.toLowerCase().includes(q)
           );
         }
-        if (subj && subj !== "ALL") {
-          filteredCustom = filteredCustom.filter((n: any) => n.subject === subj);
+        if (subject && subject !== "ALL") {
+          filteredCustom = filteredCustom.filter((n: any) => n.subject === subject);
         }
 
         const combinedNotes = [...filteredCustom, ...(data.notes || [])];
